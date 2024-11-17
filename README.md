@@ -10,9 +10,9 @@ Just install docker and run the following:
 
 # Endpoints
 Gets you the image
-'http://localhost:3000/traffic-image-raw'
+1. 'http://localhost:3000/traffic-image-raw'
 Gets you the image in json file with timestamp as well as the image as a base64 binary. 
-'http://localhost:3000/traffic-image-json'
+2. 'http://localhost:3000/traffic-image-json'
 `
 {
   "camera": "GATasman",

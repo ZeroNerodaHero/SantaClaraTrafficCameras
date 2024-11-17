@@ -4,7 +4,7 @@ Includes a docker container that easily streams the data from Santa Clara's open
 # Installation
 Just install docker and run the following:
 1. This installs the image
-`docker build -t flask-traffic-image`
+`docker build -t flask-traffic-image .`
 2. This runs the docker image
 `docker run -p 3000:3000 flask-traffic-image`
 

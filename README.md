@@ -2,19 +2,17 @@
 Includes a docker container that easily streams the data from Santa Clara's open traffic.
 
 # Installation
-Just install docker and run the following
-This installs the image
-'docker build -t flask-traffic-image'
-This runs the docker image
-'docker run -p 3000:3000 flask-traffic-image'
+Just install docker and run the following:
+1. This installs the image
+`docker build -t flask-traffic-image`
+2. This runs the docker image
+`docker run -p 3000:3000 flask-traffic-image`
 
 # Endpoints
 Gets you the image
 'http://localhost:3000/traffic-image-raw'
 Gets you the image in json file with timestamp as well as the image as a base64 binary. 
 'http://localhost:3000/traffic-image-json'
-Example:
-- 
 `
 {
   "camera": "GATasman",

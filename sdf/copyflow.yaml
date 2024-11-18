@@ -1,0 +1,95 @@
+apiVersion: 0.5.0
+meta:
+  name: traffic-object-detect
+  version: 0.1.0
+  namespace: traffic
+
+config:
+  converter: json
+
+types:
+  event-info:
+    type: object
+    properties:
+      counter: 
+        type: u32
+      event_timestamp: 
+        type: string
+      image_binary: 
+        type: string
+      url: 
+        type: string
+  traffic-img:
+    type: object
+    properties:
+      camera: 
+        type: string
+      event: 
+        type: event-info
+  traffic-img-proc:
+    type: object
+    properties:
+      camera: 
+        type: string
+      event: 
+        type: event-info 
+      boundbox: 
+        type: string
+topics:
+  traffic-camera:
+    schema:
+      value:
+        type: traffic-img
+  traffic-copy:
+    schema:
+      value:
+        type: traffic-img-proc
+
+services:
+  dostuff:
+    sources:
+      - type: topic
+        id: traffic-camera 
+    transforms:
+      - operator: map 
+        dependencies:
+          - name: sdf-http
+            git: "https://github.com/infinyon/sdf-http-guest"
+            tag: "v0.4.0"
+          - name: serde_json
+            version: "1.0.60"
+        run: |
+          fn queryyolo(obj:TrafficImg) -> Result<TrafficImgProc> {
+            use sdf_http::http::{Request, header};
+            use serde_json::Value;         
+
+            let url = "https://api-inference.huggingface.co/models/hustvl/yolos-tiny";
+            let token = "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";
+            let image_binary = base64::decode(&obj.event.image_binary)
+                                .map_err(|e| format!("Failed to decode image binary: {}", e))?;
+
+            let request = Request::builder()
+                .method("POST")
+                .uri(url)
+                .header(header::CONTENT_TYPE, "application/octet-stream")
+                .header(header::AUTHORIZATION, format!("Bearer {}", token))
+                .body(image_binary)?; // Send the binary data as the request body
+
+            let response = sdf_http::blocking::send(request)?;
+            let response_body = String::from_utf8(response.into_body())
+                                    .map_err(|e| format!("Failed to parse response body: {}", e))?;
+
+            Ok(TrafficImgProc{
+                camera: obj.camera,
+                event: EventInfo{
+                  counter: obj.event.counter,
+                  event_timestamp: obj.event.event_timestamp,
+                  image_binary: "".to_string(),
+                  url: obj.event.url,
+                },
+                boundbox: response_body
+            })  
+          }
+    sinks:
+      - type: topic
+        id: traffic-copy

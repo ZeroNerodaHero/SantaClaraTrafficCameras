@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="2">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekognition Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .image-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .bounding-box {
+            position: absolute;
+            border: 2px solid red;
+            pointer-events: none;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+        }
+        .json-container {
+            margin-top: 20px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rekognition Results</h1>
+
+    <!-- Container to hold the image and bounding boxes -->
+    <div class="image-container">
+        <!-- Display the image -->
+        <img id="source-image" src="data:image/jpeg;charset=utf-8;base64,{{ image_data }}" alt="Traffic Image">
+    </div>
+
+    <!-- Display the labels and car count -->
+    <div class="json-container">
+        <h2>Labels:</h2>
+        <ul>
+            {% for label in result_json.labels %}
+                <li>{{ label }}</li>
+            {% endfor %}
+        </ul>
+        <p><strong>Car Count:</strong> {{ result_json.car_count }}</p>
+
+        <h2>Raw JSON:</h2>
+        <pre>{{ result_json | tojson }}</pre>
+    </div>
+
+    <script>
+        // Get the source image and container elements
+        const img = document.getElementById('source-image');
+        const container = document.querySelector('.image-container');
+
+        // Wait for the image to load before calculating positions
+        img.onload = () => {
+            // JSON data (replace this with your data if needed)
+            const boundingBoxes = {{ result_json.bounding_box | tojson }};
+
+            // Create bounding boxes as <div> elements
+            boundingBoxes.forEach(box => {
+                // Create a div for each bounding box
+                const div = document.createElement('div');
+                div.classList.add('bounding-box');
+
+                // Convert normalized coordinates to pixel values
+                const x = box.Left * img.width;
+                const y = box.Top * img.height;
+                const width = box.Width * img.width;
+                const height = box.Height * img.height;
+
+                // Apply styles to position the bounding box
+                div.style.left = `${x}px`;
+                div.style.top = `${y}px`;
+                div.style.width = `${width}px`;
+                div.style.height = `${height}px`;
+
+                // Append the bounding box to the container
+                container.appendChild(div);
+            });
+        };
+    </script>
+</body>
+</html>
+

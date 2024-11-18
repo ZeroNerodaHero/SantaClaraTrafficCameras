@@ -1,0 +1,13 @@
+apiVersion: 0.2.0
+meta:
+  version: 0.3.8
+  name: camera-connector
+  type: http-source
+  topic:
+    version: 0.1.0
+    meta:
+      name: traffic-camera
+http:
+  endpoint: http://localhost:3001/traffic-image-json
+  interval: 5s
+  method: GET

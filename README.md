@@ -6,12 +6,15 @@ A makefile is there for u to run
 2. `make runconn' will run the connectors
 3. `sdf deploy --dataflow-file sdf/dataflow.yaml` to deploy the dataflow
 4. run the commands found in the output_streamer
-`
+```
 python3 -m venv venv
+
 source venv/bin/activate
+
 pip install -r requirements.txt
+
 python app.py
-`
+```
 
 To clean
 1. `make clean` will clean the docker and the volumes

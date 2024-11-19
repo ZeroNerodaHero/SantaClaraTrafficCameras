@@ -3,10 +3,11 @@ import json
 from fluvio import Fluvio, Offset
 from threading import Thread
 import time
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, origins="*")
 
-time.sleep(15)
 fluvio = Fluvio.connect()
 
 def create_consumer():
@@ -41,6 +42,10 @@ def display_traffic_image():
     else:
         return "No data found...", 200 
 
+@app.route('/test')
+def test():
+    return "Hello world",200
+
 def start_background_task():
     thread = Thread(target=fetch_box)
     thread.daemon = True
@@ -48,5 +53,5 @@ def start_background_task():
 
 if __name__ == '__main__':
     start_background_task()
-    app.run(host='0.0.0.0', port=3000)
+    app.run(host='0.0.0.0', port=5001)
 

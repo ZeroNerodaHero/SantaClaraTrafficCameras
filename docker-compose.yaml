@@ -83,21 +83,21 @@ services:
     ports:
       - "3001:3000"
 
-  output-site:
-    hostname: output
-    build:
-      context: ./output_streamer
-    ports:
-      - "3000:3000"
-    command: >
-      /bin/sh -c "
-        fluvio profile add docker sc:9003 docker
-        tail -f /dev/null
-      "
-    volumes:
-      - fluvio-data:/fluvio/data
-    depends_on:
-      - sc
+  
+#  output-site:
+#    hostname: output
+#    build:
+#      context: ./output_streamer
+#    network_mode: host
+#    command: >
+#      /bin/sh -c "
+#        fluvio profile add docker 127.0.0.1:9103 docker &&
+#        /venv/bin/python app.py
+#      "
+#    volumes:
+#      - fluvio-data:/fluvio/data
+#    depends_on:
+#      - sc
 
 
 volumes:

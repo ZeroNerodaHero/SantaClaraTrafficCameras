@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="refresh" content="1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Traffic Camera</title>
     <style>
@@ -30,37 +34,46 @@
     </div>
 
     <script>
+        // <meta http-equiv="refresh" content="1" />
         window.onload = function() {
             const canvas = document.getElementById('imageCanvas');
             const ctx = canvas.getContext('2d');
 
             const img = document.getElementById('trafficImage');
+            const originalWidth = img.naturalWidth;
+            const originalHeight = img.naturalHeight;
+            const scaleX = img.width / originalWidth ;
+            const scaleY = img.height / originalHeight ;
 
-            // Ensure the canvas size matches the image
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
+            //console.log(img.width,img.height);
+            //console.log(originalWidth,originalHeight);
+            const tmp= JSON.parse({{ record['boundbox'] | tojson }});
 
-                // Bounding boxes data from the Python template
-                const boundingBoxes = JSON.parse("{{ record['boundbox'] | tojson }}");
-                
-                // Draw the bounding boxes
-                boundingBoxes.forEach(box => {
-                    const { score, label, box: { xmin, ymin, xmax, ymax } } = box;
+            canvas.width = img.width;
+            canvas.height = img.height;
 
-                    // Set the color and line width for bounding box
-                    ctx.strokeStyle = 'red';
-                    ctx.lineWidth = 2;
+            const boundingBoxes = JSON.parse({{ record['boundbox'] | tojson }});
+            //console.log(boundingBoxes);
 
-                    // Draw the box
-                    ctx.strokeRect(xmin, ymin, xmax - xmin, ymax - ymin);
+            
+            boundingBoxes.forEach(box => {
+                const { score, label, box: { xmin, ymin, xmax, ymax } } = box;
 
-                    // Label text
-                    ctx.font = '16px Arial';
-                    ctx.fillStyle = 'red';
-                    ctx.fillText(label, xmin, ymin - 5); // Position label above the box
-                });
-            };
+                // Set the color and line width for the bounding box
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+
+                // Draw the bounding box
+                ctx.strokeRect(xmin*scaleX, ymin*scaleY, (xmax - xmin)*scaleX, (ymax - ymin)*scaleY);
+
+                // Draw label text above the bounding box
+                ctx.font = '16px Arial';
+                ctx.fillStyle = 'red';
+                ctx.fillText(`${label} (${(score * 100).toFixed(1)}%)`, xmin, ymin - 5);
+            });
+            ctx.strokeStyle = 'green';
+            ctx.lineWidth = 12;
+            ctx.strokeRect(0,0,img.width,img.height);
         };
     </script>
 </body>

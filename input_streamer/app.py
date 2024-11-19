@@ -11,7 +11,7 @@ import os
 app = Flask(__name__)
 
 image_data = None
-camera="GAOldMtnViewAlviso"
+camera="TasmanOldIronsides"
 counter = 0
 
 def get_image(counter):

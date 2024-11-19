@@ -2,4 +2,4 @@ flask
 fluvio
 numpy
 requests
-
+flask-cors

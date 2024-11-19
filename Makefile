@@ -14,6 +14,11 @@ compose:
 	fluvio topic create traffic-boxes --retention-time 30s
 runconn:
 	make batch folder=A_conn/
+startflask:
+	python3 -m venv output_streamer/venv
+	source output_streamer/venv/bin/activate
+	pip install -r output_streamer/requirements.txt
+	python app.py
 
 ifneq ($(MAKECMDGOALS),)
     ifeq ($(MAKECMDGOALS), connector)

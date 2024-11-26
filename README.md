@@ -3,18 +3,10 @@ The following repo contains a program that streams traffic data from santa clara
 
 A makefile is there for u to run 
 1. `make up` will generate all the required docker images
-2. `make runconn' will run the connectors
-3. `sdf deploy --dataflow-file sdf/dataflow.yaml` to deploy the dataflow
-4. run the commands found in the output_streamer
-```
-python3 -m venv venv
+2. visit localhost:5001 
 
-source venv/bin/activate
+expected output:
 
-pip install -r requirements.txt
-
-python app.py
-```
 
 To clean
 1. `make clean` will clean the docker and the volumes

@@ -2,8 +2,10 @@ IMAGE_NAME = fluvio:sdf
 WORKER_NAME = docker-worker
 SDF_WORKER = sdf-worker
 
+.PHONY: sdf
+
 default: help
-up: build compose
+up: build compose runconn sdf startflask
 build:
 	docker build -t $(IMAGE_NAME) .
 compose:
@@ -14,11 +16,27 @@ compose:
 	fluvio topic create traffic-boxes --retention-time 30s
 runconn:
 	make batch folder=A_conn/
-startflask:
+sdf:
+	@echo ""
+	@echo "==================================================================="
+	@echo "PLEASE\033[1m CONTROL + C\033[0m TO EXIT FROM SDF AFTER IT FINISHES"
+	@echo "IT WILL AUTOMATOMATICALLY START THE FLASK SERVER"
+	@echo "==================================================================="
+	@echo ""
+	sdf deploy --dataflow-file sdf/dataflow.yaml -e hg_apikey=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
+startflask-local:
 	python3 -m venv output_streamer/venv
 	source output_streamer/venv/bin/activate
 	pip install -r output_streamer/requirements.txt
 	python app.py
+startflask:
+	docker build -t output-site ./output_streamer
+	docker run -it --rm \
+	  --network host \
+	  --name output-site \
+	  -v fluvio-data:/fluvio/data \
+	  -e FLUVIO_PROFILE=docker \
+	  output-site /bin/sh -c "fluvio profile add docker 127.0.0.1:9103 docker && /venv/bin/python app.py"
 
 ifneq ($(MAKECMDGOALS),)
     ifeq ($(MAKECMDGOALS), connector)
@@ -63,34 +81,22 @@ batch:
 	find A_conn -type f -exec make connector config={} \;
 
 down:
-	docker-compose down
-clean: down
-	docker volume prune
+	docker-compose down 
+clean: 
+	docker-compose down -v
+	docker image prune
 
 help:
+	@echo "The following will run a whole project that digests information from Santa Clara's public traffic camera through a fluvio cluster. And apply a yolos object detection via yolos. After the service starts, the port 5001 should output the object detection."
+	@echo ""
 	@echo "Usage: make <target> [arguments]"
 	@echo ""
 	@echo "Targets:"
-	@echo "  \033[1mup\033[0m                 Initializes the Fluvio cluster "
+	@echo "  \033[1mup\033[0m				Runs the whole process"
 	@echo ""
-	@echo "  \033[1mconnector\033[0m          Starts a specific connector defined by a configuration file."
-	@echo "                     Will install all packages and sm in the docker container"
-	@echo "                     Arguments: config=<path_to_config>"
-	@echo "                     Example: make connector config=<path-to-file>"
+	@echo "  \033[1mrunconn\033[0m			Only starts the connector. Will automatically all prereqs"
 	@echo ""
-	@echo "  \033[1mshutdown\033[0m           Shuts down a specific connector by name."
-	@echo "                     Arguments: name=<connector_name>"
-	@echo "                     Example: make shutdown name=<my_connector>"
+	@echo "  \033[1mstartflask-local\033[0m         	Starts a local flask server instead of starting the container" 
 	@echo ""
-	@echo "  \033[1mbatch\033[0m              Starts all connectors defined in the specified folder, attempting to run all .yaml files."
-	@echo "                     Arguments: folder=<path_to_folder>"
-	@echo "                     Example: make batch folder=<path/to/connectors>"
-	@echo ""
-	@echo "  \033[1mclean_conn\033[0m         Deletes all connectors, including any currently running ones."
-	@echo ""
-	@echo "  \033[1mstat_conn\033[0m          Shows the status of all connectors, including active and inactive connectors."
-	@echo ""
-	@echo "  \033[1mdown\033[0m               Runs docker compose down"
-	@echo ""
-	@echo "  \033[1mclean\033[0m              Cleans up the entire Docker Compose environment"
+	@echo "  \033[1mclean\033[0m           		Cleans up the entire environment"
 .PHONY: all build up update clean

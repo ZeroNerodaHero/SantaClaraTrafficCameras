@@ -92,6 +92,7 @@ services:
 #    command: >
 #      /bin/sh -c "
 #        fluvio profile add docker 127.0.0.1:9103 docker &&
+#        #tail -f /dev/null &&
 #        /venv/bin/python app.py
 #      "
 #    volumes:

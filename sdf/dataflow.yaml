@@ -67,7 +67,9 @@ services:
             use base64::{Engine as _, alphabet, engine::{self, general_purpose}};
 
             let url = "https://api-inference.huggingface.co/models/hustvl/yolos-tiny";
-            let token = "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";
+            let token = "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";
+            //let token = std::env::var("hg_apikey")?;
+            //let token1 = std::env::var("hg_apikey")?;
             //let image_binary = base64::decode(&obj.event.image_binary);
             let image_binary= general_purpose::STANDARD
                          .decode(&obj.event.image_binary).unwrap();
@@ -88,6 +90,7 @@ services:
                   counter: obj.event.counter,
                   event_timestamp: obj.event.event_timestamp,
                   image_binary: "".to_string(),
+                  //image_binary: std::env::var("hg_apikey")?,
                   url: obj.event.url,
                 },
                 boundbox: response_str

@@ -1,20 +1,20 @@
 # Santa Clara Real Time Traffic Camera Streamer
 The following repo contains a program that streams traffic data from santa clara's open traffic cameras. It streams the image(a very small binary file) into a fluvio topic. If you run sdf dataflow, you can apply a hugging face yolo transformation that does object detection. 
-![Alt text](traffic.png)
 
 A makefile is there for u to run 
 1. `make up` will generate all the required docker images
-2. visit [localhost:5001](localhost:5001)
-*You may need to update the huggingface api key found in `sdf/dataflow.yaml`. There is one provided, it will last until it doens't*
-`
-70: let token = "<your key>";
-`
+2. `make runconn' will run the connectors
+3. `sdf deploy --dataflow-file sdf/dataflow.yaml` to deploy the dataflow
+4. run the commands found in the output_streamer
+```
+python3 -m venv venv
 
-## Topics
-1. `traffic-camera` contains the raw images streamed
-2. `traffic-boxes` contains the bounding boxes of the objects detected by yolos
+source venv/bin/activate
 
+pip install -r requirements.txt
 
+python app.py
+```
 
 To clean
 1. `make clean` will clean the docker and the volumes

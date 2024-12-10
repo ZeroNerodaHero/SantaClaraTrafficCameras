@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 import json
 from fluvio import Fluvio, Offset
 from threading import Thread
@@ -45,6 +45,15 @@ def display_traffic_image():
 @app.route('/test')
 def test():
     return "Hello world",200
+
+@app.route('/get_latest_record')
+def get_latest_record():
+    global record
+    if record:
+        parsed_record = json.loads(record)
+        return jsonify(parsed_record)  # Send the record as JSON
+    else:
+        return jsonify({'error': 'No data found'}), 404
 
 def start_background_task():
     thread = Thread(target=fetch_box)
